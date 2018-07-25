@@ -7,8 +7,9 @@ from logHandler import log
 
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 	savedCaret = None
+	savedLine = None
 
-	def script_lineNumber(self, gesture):
+	def _getLineNum(self):
 		focus = api.getFocusObject()
 		textInfo = focus.makeTextInfo(textInfos.POSITION_CARET)
 		textInfo.expand(textInfos.UNIT_LINE)
@@ -23,17 +24,25 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			else:
 				lines += 1
 
-		ui.message(str(lines))
+		return lines
+
+	def script_lineNumber(self, gesture):
+		ui.message(str(self._getLineNum()))
 
 	def script_saveCaret(self, gesture):
 		focus = api.getFocusObject()
 		textInfo = focus.makeTextInfo(textInfos.POSITION_CARET)
 		if textInfo is not None:
+			self.savedLine = self._getLineNum()
 			self.savedCaret = textInfo
+			ui.message("Saved cursor on line {}".format(self.savedLine))
+
 
 	def script_restoreCaret(self, gesture):
 		if self.savedCaret is not None:
 			self.savedCaret.updateCaret()
+			ui.message("Restored cursor to line {}".format(self.savedLine))
+
 
 	__gestures={
 		"kb:NVDA+g": "lineNumber",
