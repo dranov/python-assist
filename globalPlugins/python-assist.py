@@ -6,6 +6,8 @@ import textInfos
 from logHandler import log
 
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
+	savedCaret = None
+
 	def script_lineNumber(self, gesture):
 		focus = api.getFocusObject()
 		textInfo = focus.makeTextInfo(textInfos.POSITION_CARET)
@@ -23,8 +25,20 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
 		ui.message(str(lines))
 
+	def script_saveCaret(self, gesture):
+		focus = api.getFocusObject()
+		textInfo = focus.makeTextInfo(textInfos.POSITION_CARET)
+		if textInfo is not None:
+			self.savedCaret = textInfo
+
+	def script_restoreCaret(self, gesture):
+		if self.savedCaret is not None:
+			self.savedCaret.updateCaret()
+
 	__gestures={
 		"kb:NVDA+g": "lineNumber",
+		"kb:NVDA+s": "saveCaret",
+		"kb:NVDA+r": "restoreCaret"
 	}
 
 	
